@@ -138,7 +138,7 @@ const forgotPassword = async (req, res) => {
         const frontendAppUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
         
         // (2) URL ko dynamic banao
-        const resetUrl = ${frontendAppUrl}/reset-password?token=${resetToken};
+        const resetUrl = `${frontendAppUrl}/reset-password?token=${resetToken}`;
         // --- (CHANGE ENDS) ---
 
         const msg = {
@@ -148,13 +148,18 @@ const forgotPassword = async (req, res) => {
             name: 'Outreach App Support'
           },
           subject: 'Your Password Reset Link',
-          text: You requested a password reset. Click this link (valid for 1 hour): ${resetUrl},
-          html: <p>You requested a password reset. Click this link (valid for 1 hour):</p><a href="${resetUrl}">${resetUrl}</a>,
+          text: `You requested a password reset. Click this link (valid for 1 hour): ${resetUrl}`,
+            html: `
+              <p>You requested a password reset. Click this link (valid for 1 hour):</p>
+              <a href="${resetUrl}" target="_blank" style="color:#7c3aed;text-decoration:none;">
+                ${resetUrl}
+              </a>
+            `,
         };
 
         await sgMail.send(msg);
 
-        console.log(Password reset email sent to: ${user.email} (via SendGrid));
+        console.log(`Password reset email sent to: ${user.email} (via SendGrid)`);
         res.status(200).json({ message: 'If your email is registered, you will receive a reset link.' });
 
     } catch (error) {

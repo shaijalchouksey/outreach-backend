@@ -120,7 +120,7 @@ const forgotPassword = async (req, res) => {
         const userResult = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
         
         if (userResult.rows.length === 0) {
-            console.log(Password reset attempt for non-existent email: ${email});
+            console.log(`Password reset attempt for non-existent email: ${email}`);
             return res.status(200).json({ message: 'If your email is registered, you will receive a reset link.' });
         }
         

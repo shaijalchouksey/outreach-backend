@@ -138,7 +138,7 @@ const forgotPassword = async (req, res) => {
         const frontendAppUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
         
         // (2) URL ko dynamic banao
-        const resetUrl = `${frontendAppUrl}/reset-password?token=${resetToken}`;
+        const resetUrl = `${frontendAppUrl}/reset?token=${resetToken}`;
         // --- (CHANGE ENDS) ---
 
         const msg = {

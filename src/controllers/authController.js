@@ -1,4 +1,3 @@
-// src/controllers/authController.js
 const pool = require('../config/db');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
@@ -10,8 +9,6 @@ dotenv.config();
 
 // --- REGISTER (Koi Change Nahi) ---
 const register = async (req, res) => {
-    // (Poora register function waisa hi hai, yahaan jagah bachaane ke liye nahi likh raha)
-    // ... (aapka puraana register code yahaan hai) ...
     const { companyName, companyEmail, domain, password } = req.body;
 
     if (password.length < 6) {
@@ -61,7 +58,7 @@ const register = async (req, res) => {
     }
 };
 
-// --- LOGIN (Yeh function UPDATE hua hai) ---
+// --- LOGIN (Koi Change Nahi) ---
 const login = async (req, res) => {
     const { email, password } = req.body;
 
@@ -77,9 +74,7 @@ const login = async (req, res) => {
             return res.status(401).json({ message: 'Invalid credentials' });
         }
 
-        // --- (NAYA CHANGE YAHAA SE) ---
-        // Ab hum user ki company ka naam bhi fetch karenge
-        let companyName = 'Your Company'; // Default
+        let companyName = 'Your Company'; 
         try {
             const tenantResult = await pool.query(
                 'SELECT company_name FROM tenants WHERE id = $1',
@@ -92,15 +87,13 @@ const login = async (req, res) => {
             console.error("Error fetching tenant name:", tenantError);
         }
         
-        // (2) Payload mein companyName add karo
         const payload = {
             userId: user.id,
             tenantId: user.tenant_id,
             email: user.email,
             role: user.role,
-            companyName: companyName // <-- YEH NAYI LINE
+            companyName: companyName
         };
-        // --- (CHANGE ENDS) ---
 
         const token = jwt.sign(
             payload,
@@ -119,17 +112,15 @@ const login = async (req, res) => {
     }
 };
 
-// --- FORGOT PASSWORD (Koi Change Nahi) ---
+// --- FORGOT PASSWORD (Yeh function UPDATE hua hai) ---
 const forgotPassword = async (req, res) => {
-    // (Aapka puraana forgotPassword code yahaan hai)
-    // ...
     const { email } = req.body;
 
     try {
         const userResult = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
         
         if (userResult.rows.length === 0) {
-            console.log(`Password reset attempt for non-existent email: ${email}`);
+            console.log(Password reset attempt for non-existent email: ${email});
             return res.status(200).json({ message: 'If your email is registered, you will receive a reset link.' });
         }
         
@@ -142,7 +133,13 @@ const forgotPassword = async (req, res) => {
             [resetToken, resetTokenExpires, user.id]
         );
 
-        const resetUrl = `http://localhost:3000/reset-password?token=${resetToken}`;
+        // --- (NAYA CHANGE YAHAA SE) ---
+        // (1) .env se FRONTEND_URL uthao. Agar nahi mili, toh fallback localhost use karo.
+        const frontendAppUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+        
+        // (2) URL ko dynamic banao
+        const resetUrl = ${frontendAppUrl}/reset-password?token=${resetToken};
+        // --- (CHANGE ENDS) ---
 
         const msg = {
           to: user.email,
@@ -151,13 +148,13 @@ const forgotPassword = async (req, res) => {
             name: 'Outreach App Support'
           },
           subject: 'Your Password Reset Link',
-          text: `You requested a password reset. Click this link (valid for 1 hour): ${resetUrl}`,
-          html: `<p>You requested a password reset. Click this link (valid for 1 hour):</p><a href="${resetUrl}">${resetUrl}</a>`,
+          text: You requested a password reset. Click this link (valid for 1 hour): ${resetUrl},
+          html: <p>You requested a password reset. Click this link (valid for 1 hour):</p><a href="${resetUrl}">${resetUrl}</a>,
         };
 
         await sgMail.send(msg);
 
-        console.log(`Password reset email sent to: ${user.email} (via SendGrid)`);
+        console.log(Password reset email sent to: ${user.email} (via SendGrid));
         res.status(200).json({ message: 'If your email is registered, you will receive a reset link.' });
 
     } catch (error) {
@@ -171,8 +168,6 @@ const forgotPassword = async (req, res) => {
 
 // --- RESET PASSWORD (Koi Change Nahi) ---
 const resetPassword = async (req, res) => {
-    // (Aapka puraana resetPassword code yahaan hai)
-    // ...
     const { token, password } = req.body;
 
     if (!token || !password) {

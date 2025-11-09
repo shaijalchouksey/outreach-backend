@@ -1,4 +1,3 @@
-// src/index.js
 const express = require('express');
 const dotenv = require('dotenv');
 const cors = require('cors');
@@ -12,6 +11,7 @@ require('./config/redis');
 // 2. Routes
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
+const intentRoutes = require('./routes/intentRoutes'); // <-- (1) NAYI LINE
 
 // 3. App Setup
 const app = express();
@@ -23,7 +23,7 @@ const allowedOrigins = [
   process.env.FRONTEND_URL  // Production (Vercel) ke liye
 ];
 
-const corsOptions = {
+const corsOptions  = {
   origin: function (origin, callback) {
     if (!origin || allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
@@ -40,6 +40,7 @@ app.use(express.json());
 // 6. Routes
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/users', userRoutes);
+app.use('/api/v1/intent', intentRoutes); // <-- (2) NAYI LINE
 
 // 7. Test Route
 app.get('/', (req, res) => {

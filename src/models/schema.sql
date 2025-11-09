@@ -41,3 +41,67 @@ ALTER TABLE users ADD COLUMN reset_token_expires TIMESTAMPTZ NULL;
 
 -- Index banao token par taaki usse dhoondhna fast ho
 CREATE INDEX idx_users_reset_token ON users(reset_token);
+
+-- Enable UUID extension
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+-- Tenants table
+CREATE TABLE tenants (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    company_name VARCHAR(255) NOT NULL,
+    domain VARCHAR(255) UNIQUE NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Users table
+CREATE TABLE users (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    tenant_id UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    role VARCHAR(50) DEFAULT 'user',
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Indexes for faster queries
+CREATE INDEX idx_users_tenant_id ON users(tenant_id);
+CREATE INDEX idx_users_email ON users(email);
+
+-- Add columns for password reset
+ALTER TABLE users ADD COLUMN reset_token TEXT;
+ALTER TABLE users ADD COLUMN reset_token_expires TIMESTAMPTZ;
+CREATE INDEX idx_users_reset_token ON users(reset_token);
+
+
+-- --- (YAHAA SE NAYA CODE ADD KARO) ---
+-- --- NAYI TABLE TIKTOK DATA KE LIYE ---
+
+CREATE TABLE tiktok_posts (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    
+    -- Yeh TikTok post ki unique ID hai (taaki hum duplicates save na karein)
+    post_id TEXT UNIQUE NOT NULL, 
+    
+    -- Humne kis keyword/hashtag ko search karke yeh post dhoondha (e.g., "travel")
+    search_hashtag TEXT NOT NULL,
+    
+    -- Post kab banaya gaya tha (date filtering ke liye)
+    post_created_at TIMESTAMPTZ,
+    
+    -- Sorting ke liye alag se columns (taaki fast sort ho)
+    play_count BIGINT DEFAULT 0,
+    digg_count BIGINT DEFAULT 0, -- (Likes)
+    comment_count BIGINT DEFAULT 0,
+    share_count BIGINT DEFAULT 0,
+    
+    -- Sabse zaroori: Poora ka poora JSON data jaisa Apify se aaya
+    raw_data JSONB NOT NULL,
+    
+    -- Humne ise apne database mein kab save kiya
+    scraped_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Nayi table ke liye Indexes (taaki search fast ho)
+CREATE INDEX idx_tiktok_posts_search_hashtag ON tiktok_posts(search_hashtag);
+CREATE INDEX idx_tiktok_posts_post_created_at ON tiktok_posts(post_created_at);
+CREATE INDEX idx_tiktok_posts_play_count ON tiktok_posts(play_count);

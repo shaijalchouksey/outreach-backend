@@ -17,24 +17,29 @@ const intentRoutes = require('./routes/intentRoutes'); // <-- (1) NAYI LINE
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// 4. Naya CORS Options
+// 4. Allowed Origins
 const allowedOrigins = [
-  'http://localhost:3000', // Development ke liye
-  process.env.FRONTEND_URL  // Production (Vercel) ke liye
+  'http://localhost:3000',
+  process.env.FRONTEND_URL
 ];
+
+console.log("✅ Allowed Origins:", allowedOrigins);
 
 const corsOptions  = {
   origin: function (origin, callback) {
-    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
+      console.error('❌ Blocked by CORS:', origin);
       callback(new Error('Not allowed by CORS'));
     }
-  }
+  },
+  credentials: true,
 };
 
 // 5. Middleware
-app.use(cors(corsOptions)); // Naya corsOptions yahaan daalo
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // 6. Routes
@@ -49,5 +54,5 @@ app.get('/', (req, res) => {
 
 // 8. Server Start
 app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+  console.log(`🚀 Server running on http://localhost:${PORT}`);
 });

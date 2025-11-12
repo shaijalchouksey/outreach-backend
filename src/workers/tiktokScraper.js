@@ -4,7 +4,7 @@ const pool = require('../config/db');
 dotenv.config();
 
 // (1) --- YEH HAI FIX ---
-const TIKTOK_ACTOR_ID = "qudrat~tiktok-scraper";
+const TIKTOK_ACTOR_ID = "apidojo~tiktok-scraper";
 const APIFY_TOKEN = process.env.APIFY_TOKEN;
 
 // (2) Yeh woh hashtags hain jinhe hum scrape karna chahte hain.

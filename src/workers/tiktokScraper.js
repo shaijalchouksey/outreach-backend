@@ -3,10 +3,11 @@ const pool = require('../config/db');
 
 dotenv.config();
 
-// (1) Actor ID ko fix kar diya hai (tilde '~' ke saath)
-const TIKTOK_ACTOR_ID = "clockworks~tiktok-scraper"; 
+// (1) --- YEH HAI FIX ---
+const TIKTOK_ACTOR_ID = "apify/tiktok-scraper";
 const APIFY_TOKEN = process.env.APIFY_TOKEN;
 
+// (2) Yeh woh hashtags hain jinhe hum scrape karna chahte hain.
 const HASHTAGS_TO_SCRAPE = ['saas', 'b2bmarketing', 'ai', 'tech', 'startup'];
 
 async function runScraper() {
@@ -25,14 +26,18 @@ async function runScraper() {
         console.log(`[Worker] --- Scraping hashtag: #${hashtag} ---`);
         
         try {
+            // (3) --- Naye Actor ka INPUT FORMAT alag hai ---
+            // 'hashtags' ki jagah 'search' ka istemal hota hai
             const actorInput = {
-                "hashtags": [hashtag],
-                "resultsPerPage": 25, 
+                "search": [hashtag], // 'hashtags' ko 'search' se badla
+                "resultsPerPage": 25, // (Aap ise 100 tak badha sakte hain)
                 "shouldDownloadVideos": false,
-                "shouldDownloadCovers": false
+                "videoLanguage": "en"
             };
 
             console.log(`[Worker] Calling Apify Actor: ${TIKTOK_ACTOR_ID}... (Waiting up to 2 mins)`);
+            
+            // (4) API URL 'acts' se 'actor-runs' mein badalna behtar hai
             const runResponse = await fetch(
                 `https://api.apify.com/v2/acts/${TIKTOK_ACTOR_ID}/runs?token=${APIFY_TOKEN}&wait_for_finish=120`, 
                 {
@@ -80,21 +85,18 @@ async function runScraper() {
                         DO NOTHING;
                     `;
                     
-                    const createDate = item.createTimeISO 
-                        ? new Date(item.createTimeISO) 
-                        : (item.createTime ? new Date(item.createTime * 1000) : null);
+                    // (5) Naya Actor alag 'createTime' deta hai, isliye 'item.timestamp' use karenge
+                    const createDate = item.timestamp ? new Date(item.timestamp * 1000) : null;
                     
                     const values = [
                         item.id,
                         hashtag,
                         createDate,
-                        item.playCount || 0,
-                        item.diggCount || 0,
-                        item.commentCount || 0,
-                        item.shareCount || 0,
-                        // (2) --- YEH HAI FIX ---
-                        // Ghalat 'D' ko yahaan se hata diya hai
-                        JSON.stringify(item) // Poora data JSONB column mein daalo
+                        item.stats?.playCount || 0, // (Naye actor mein stats 'stats' object ke andar hain)
+                        item.stats?.diggCount || 0,
+                        item.stats?.commentCount || 0,
+                        item.stats?.shareCount || 0,
+                        JSON.stringify(item) 
                     ];
                     
                     const result = await pool.query(insertQuery, values);

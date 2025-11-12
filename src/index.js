@@ -41,7 +41,9 @@ const corsOptions  = {
 
 // 5. Middleware
 app.use(cors(corsOptions));
-app.use(express.json());
+// Increase body size limit to 50MB for TikTok posts data
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // 6. Routes
 app.use('/api/v1/auth', authRoutes);

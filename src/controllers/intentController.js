@@ -3,7 +3,7 @@ const pool = require('../config/db');
 
 dotenv.config();
 
-const TIKTOK_ACTOR_ID = "clockworks~tiktok-scraper";
+const TIKTOK_ACTOR_ID = "apidojo~tiktok-scraper";
 const APIFY_TOKEN = process.env.APIFY_TOKEN;
 
 const getStoredTikTokPosts = async (req, res) => {

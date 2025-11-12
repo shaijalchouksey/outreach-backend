@@ -4,9 +4,9 @@ const pool = require('../config/db');
 dotenv.config();
 
 // Actor ID sahi hai (apidojo~)
-const TIKTOK_ACTOR_ID = "apidojo~tiktok-scraper"; 
+const TIKTOK_ACTOR_ID = "clockworks~tiktok-scraper"; 
 const APIFY_TOKEN = process.env.APIFY_TOKEN;
-const HASHTAGS_TO_SCRAPE = ['funny', 'dance', 'music', 'art', 'comedy'];
+const HASHTAGS_TO_SCRAPE = ['Hi','funny', 'dance', 'music', 'art', 'comedy'];
 
 async function runScraper() {
     console.log(`[Worker] Starting TikTok scraper job for ${HASHTAGS_TO_SCRAPE.length} hashtags...`);

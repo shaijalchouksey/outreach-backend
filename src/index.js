@@ -1,8 +1,8 @@
-const express = require('express');
 const dotenv = require('dotenv');
+dotenv.config();
+const express = require('express');
 const cors = require('cors');
 
-dotenv.config();
 
 // 1. DB Connections
 require('./config/db');
@@ -12,6 +12,7 @@ require('./config/redis');
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
 const intentRoutes = require('./routes/intentRoutes'); // <-- (1) NAYI LINE
+const analyticsRoutes = require('./routes/analyticsRoutes');
 
 // 3. App Setup
 const app = express();
@@ -46,6 +47,7 @@ app.use(express.json());
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/intent', intentRoutes); // <-- (2) NAYI LINE
+app.use('/api/v1/analytics', analyticsRoutes);
 
 // 7. Test Route
 app.get('/', (req, res) => {
